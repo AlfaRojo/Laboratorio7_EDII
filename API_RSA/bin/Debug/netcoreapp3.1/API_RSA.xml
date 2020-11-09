@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>API_RSA</name>
+    </assembly>
+    <members>
+        <member name="T:API_RSA.Controllers.rsaController">
+            <summary>
+            Cifrado Asimétrico RSA
+            </summary>
+        </member>
+        <member name="M:API_RSA.Controllers.rsaController.Get_Key(System.Int32,System.Int32)">
+            <summary>
+            Generación de llave pública y privada
+            </summary>
+            <param name="p"></param>
+            <param name="q"></param>
+            <returns></returns>
+        </member>
+        <member name="M:API_RSA.Controllers.rsaController.Post_Key(System.String)">
+            <summary>
+            Recibe 
+            </summary>
+            <param name="nombre"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
