@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab7_EDII", "Lab7_EDII.csproj", "{B94815CB-EEC7-4A6A-B4E0-26E4D969DD82}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lab7_EDII", "Lab7_EDII.csproj", "{B94815CB-EEC7-4A6A-B4E0-26E4D969DD82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API_RSA", "..\API_RSA\API_RSA.csproj", "{B126C42C-4D3D-4398-BD88-90C5DEC7F087}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{B94815CB-EEC7-4A6A-B4E0-26E4D969DD82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B94815CB-EEC7-4A6A-B4E0-26E4D969DD82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B94815CB-EEC7-4A6A-B4E0-26E4D969DD82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B126C42C-4D3D-4398-BD88-90C5DEC7F087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B126C42C-4D3D-4398-BD88-90C5DEC7F087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B126C42C-4D3D-4398-BD88-90C5DEC7F087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B126C42C-4D3D-4398-BD88-90C5DEC7F087}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
