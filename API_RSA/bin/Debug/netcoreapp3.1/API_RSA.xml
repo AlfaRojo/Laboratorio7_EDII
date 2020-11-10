@@ -24,5 +24,19 @@
             <param name="nombre"></param>
             <returns></returns>
         </member>
+        <member name="M:API_RSA.Models.Numbers.Is_Prime(System.Int32)">
+            <summary>
+            Calcula si el número ingresado es primo
+            </summary>
+            <param name="num"></param>
+            <returns></returns>
+        </member>
+        <member name="M:API_RSA.Models.Numbers.Is_Big(System.Int32)">
+            <summary>
+            Retorna si el número es demasiado grande para ser calculado en RSA
+            </summary>
+            <param name="num"></param>
+            <returns></returns>
+        </member>
     </members>
 </doc>

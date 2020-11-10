@@ -2,6 +2,11 @@
 {
     public class Numbers
     {
+        /// <summary>
+        /// Calcula si el número ingresado es primo
+        /// </summary>
+        /// <param name="num"></param>
+        /// <returns></returns>
         public bool Is_Prime(int num)
         {
             int a = 0;
@@ -21,6 +26,11 @@
                 return true;
             }
         }
+        /// <summary>
+        /// Retorna si el número es demasiado grande para ser calculado en RSA
+        /// </summary>
+        /// <param name="num"></param>
+        /// <returns></returns>
         public bool Is_Big(int num)
         {
             return num < 100 ? true : false;

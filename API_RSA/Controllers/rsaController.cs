@@ -14,6 +14,8 @@ namespace API_RSA.Controllers
         /// </summary>
         /// <param name="p"></param>
         /// <param name="q"></param>
+        ///<response code="200">Llave privada y pública generadas</response>
+        ///<response code="500">Números son valores erroneos</response>
         /// <returns></returns>
         [HttpGet, Route("{p}/{q}")]
         public ActionResult Get_Key(int p, int q)
@@ -23,14 +25,15 @@ namespace API_RSA.Controllers
                 return StatusCode(500, $"El valor de p:{p} o el valor de q:{q} deben de ser mayores a 0.");
             }
             Numbers numbers = new Numbers();
-
-            FileHandling fileHandling = new FileHandling();
-            var p_Prime = numbers.Is_Prime(p);
-            var q_Prime = numbers.Is_Prime(q);
-            if (p_Prime && q_Prime)
+            if (numbers.Is_Prime(p) && numbers.Is_Prime(q))
             {
-                fileHandling.Get_Keys(p, q);
-                return Ok($"Llaves generadas para {p},{q}");
+                if (numbers.Is_Big(p) && numbers.Is_Big(q))
+                {
+                    FileHandling fileHandling = new FileHandling();
+                    fileHandling.Get_Keys(p, q);
+                    return Ok($"Llaves generadas para {p},{q}");
+                }
+                return StatusCode(500, $"El valor de p:{p} y el valor de q:{q} deben de ser menores a 1,000.");
             }
             else
             {
