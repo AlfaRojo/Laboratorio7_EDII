@@ -30,7 +30,7 @@ namespace API_RSA.Controllers
                 if (numbers.Is_Big(p) && numbers.Is_Big(q))
                 {
                     FileHandling fileHandling = new FileHandling();
-                    fileHandling.Get_Keys(p, q);
+                    fileHandling.Create_Keys(p, q);
                     return Ok($"Llaves generadas para {p},{q}");
                 }
                 return StatusCode(500, $"El valor de p:{p} y el valor de q:{q} deben de ser menores a 1,000.");
@@ -45,9 +45,10 @@ namespace API_RSA.Controllers
         /// Recibe 
         /// </summary>
         /// <param name="nombre"></param>
+        /// <param name="files"></param>
         /// <returns></returns>
         [HttpPost, Route("{nombre}")]
-        public ActionResult Post_Key(string nombre)
+        public ActionResult Post_Key(string nombre, Required files)
         {
             return Ok();
         }

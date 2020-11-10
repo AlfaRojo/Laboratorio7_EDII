@@ -1,11 +1,12 @@
 ﻿using Lab7_EDII.RSA;
+using Microsoft.AspNetCore.Http;
 using System.IO;
 
 namespace API_RSA.Models
 {
     public class FileHandling
     {
-        public void Create_Files()
+        private void Create_Files()
         {
             if (!Directory.Exists($"RSA"))
             {
@@ -28,11 +29,28 @@ namespace API_RSA.Models
                 Directory.Delete(@"RSA");
             }
         }
-        public void Get_Keys(int p, int q)
+
+        /// <summary>
+        /// Genera las llaves y son guardadas en archivos separados y compresos
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="q"></param>
+        public void Create_Keys(int p, int q)
         {
             Create_Files();
             CipherDecipher cipherDecipher = new CipherDecipher();
             cipherDecipher.CreacionLlaves(p, q);
+            Delete_Files();
+        }
+
+        /// <summary>
+        /// Obtiene la llave guardada en el archivo
+        /// </summary>
+        /// <param name="files"></param>
+        public void Get_Key_From_File(Required files)
+        {
+            Create_Files();
+
             Delete_Files();
         }
     }
