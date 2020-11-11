@@ -17,14 +17,7 @@
                     a++;
                 }
             }
-            if (a != 2)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return a != 2 ? true : false;
         }
         /// <summary>
         /// Retorna si el número es demasiado grande para ser calculado en RSA
@@ -33,7 +26,7 @@
         /// <returns></returns>
         public bool Is_Big(int num)
         {
-            return num < 100 ? true : false;
+            return num < 225 ? true : false;
         }
     }
 }

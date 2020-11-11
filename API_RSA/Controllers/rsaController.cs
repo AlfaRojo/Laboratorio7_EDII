@@ -50,6 +50,8 @@ namespace API_RSA.Controllers
         [HttpPost, Route("{nombre}")]
         public ActionResult Post_Key(string nombre, Required files)
         {
+            FileHandling fileHandling = new FileHandling();
+            fileHandling.Cihper_with_Key(files, nombre);
             return Ok();
         }
     }

@@ -10,19 +10,36 @@
             </summary>
         </member>
         <member name="M:API_RSA.Controllers.rsaController.Get_Key(System.Int32,System.Int32)">
-            <summary>
-            Generación de llave pública y privada
-            </summary>
-            <param name="p"></param>
-            <param name="q"></param>
-            <returns></returns>
+             <summary>
+             Generación de llave pública y privada
+             </summary>
+             <param name="p"></param>
+             <param name="q"></param>
+            <response code="200">Llave privada y pública generadas</response>
+            <response code="500">Números son valores erroneos</response>
+             <returns></returns>
         </member>
-        <member name="M:API_RSA.Controllers.rsaController.Post_Key(System.String)">
+        <member name="M:API_RSA.Controllers.rsaController.Post_Key(System.String,API_RSA.Models.Required)">
             <summary>
             Recibe 
             </summary>
             <param name="nombre"></param>
+            <param name="files"></param>
             <returns></returns>
+        </member>
+        <member name="M:API_RSA.Models.FileHandling.Create_Keys(System.Int32,System.Int32)">
+            <summary>
+            Genera las llaves y son guardadas en archivos separados y compresos
+            </summary>
+            <param name="p"></param>
+            <param name="q"></param>
+        </member>
+        <member name="M:API_RSA.Models.FileHandling.Cihper_with_Key(API_RSA.Models.Required,System.String)">
+            <summary>
+            Obtiene la llave guardada en el archivo
+            </summary>
+            <param name="files"></param>
+            <param name="fileName"></param>
         </member>
         <member name="M:API_RSA.Models.Numbers.Is_Prime(System.Int32)">
             <summary>
