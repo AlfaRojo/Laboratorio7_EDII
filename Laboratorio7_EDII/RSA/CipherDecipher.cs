@@ -44,11 +44,6 @@ namespace Lab7_EDII.RSA
             }
         }
 
-        private BigInteger Math_RSA(byte txt, int key, int n)
-        {
-            return (BigInteger)(Math.Pow(txt, key) % n);
-        }
-
         public void CifrarDescifrar_Old(FileStream ArchivoImportado, string Llave, string newName)
         {
             ArchivoImportado.Close();
@@ -99,18 +94,74 @@ namespace Lab7_EDII.RSA
         public void CreacionLlaves(int primo1, int primo2)
         {
             int phi = (primo1 - 1) * (primo2 - 1);
-            int N = primo1 * primo2;
-            int e = Encontare(phi, (phi - 2));
-            int inverso = InversoMultiplicativo(phi, e, 1, 0, 0, 1, 0, 0, 0, 0, 0);
-            if (inverso < 0)
+            int n = primo1 * primo2;
+            int e = get_E(phi);
+            int d = modInverse(e, phi);
+            if (d < 0)
             {
-                inverso = phi + inverso;
+                d += phi;
             }
-            string llavePrivada = e.ToString() + "," + N.ToString();
-            string llavePublica = inverso.ToString() + "," + N.ToString();
+            string llavePrivada = e.ToString() + "," + n.ToString();
+            string llavePublica = d.ToString() + "," + n.ToString();
             CreateFile(llavePrivada, "private.key");
             CreateFile(llavePublica, "public.key");
             CompressFile();
+        }
+
+        private int modInverse(int a, int n)
+        {
+            int i = n, v = 0, d = 1;
+            while (a > 0)
+            {
+                int t = i / a, x = a;
+                a = i % x;
+                i = x;
+                x = d;
+                d = v - t * x;
+                v = x;
+            }
+            v %= n;
+            if (v < 0) v = (v + n) % n;
+            return v;
+        }
+
+        private int get_E(int phi)
+        {
+            for (int i = 5007; i < 10000; i++)
+            {
+                if (isPrime(i))
+                {
+                    if (EsPrimoRelativo(i, phi))
+                    {
+                        return i;
+                    }
+                }
+            }
+            return 0;
+        }
+
+        private static bool isPrime(int number)
+        {
+            for (int i = 2; i < number; i++)
+            {
+                if (number % i == 0)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static bool EsPrimoRelativo(int numero1, int numero2)
+        {
+            int resto;
+            while (numero2 != 0)
+            {
+                resto = numero1 % numero2;
+                numero1 = numero2;
+                numero2 = resto;
+            }
+            return numero1 == 1 || numero1 == -1;
         }
 
         public void CreateFile(string textoResultante, string tipo)

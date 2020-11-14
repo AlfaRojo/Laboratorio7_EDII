@@ -33,14 +33,11 @@ namespace API_RSA.Controllers
                     {
                         FileHandling fileHandling = new FileHandling();
                         fileHandling.Create_Keys(p, q);
-                        return Ok($"Llaves generadas para {p},{q}");
+                        return Ok($"Llaves generadas para {p},{q}");//aplication/zip
                     }
                     return StatusCode(500, $"El valor de p:{p} y el valor de q:{q} deben de ser menores a 1,000.");
                 }
-                else
-                {
-                    return StatusCode(500, $"El valor de p:{p} o el valor de q:{q} deben de ser números primos.");
-                } 
+                return StatusCode(500, $"El valor de p:{p} o el valor de q:{q} deben de ser números primos.");
             }
             return StatusCode(500, $"Los valores de p:{p} y q:{q} no pueden ser los mismos");
         }
