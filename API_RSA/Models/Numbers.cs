@@ -17,7 +17,7 @@
                     a++;
                 }
             }
-            return a != 2 ? true : false;
+            return a == 2 ? true : false;
         }
         /// <summary>
         /// Retorna si el número es demasiado grande para ser calculado en RSA

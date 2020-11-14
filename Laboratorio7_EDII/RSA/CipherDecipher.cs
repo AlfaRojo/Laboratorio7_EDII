@@ -12,6 +12,47 @@ namespace Lab7_EDII.RSA
         {
             ArchivoImportado.Close();
             string[] claves = Llave.Split(',');
+            int key = int.Parse(claves[0]);
+            var n = int.Parse(claves[1]);
+            using (var file_Cipher = new FileStream(ArchivoImportado.Name, FileMode.Open, FileAccess.ReadWrite))
+            {
+                var bufferLength = 80;
+                var buffer = new byte[bufferLength];
+                using (var Writer = new BinaryWriter(File.OpenWrite(Path.Combine($"RSA", newName + ".txt"))))
+                {
+                    using (var reader = new BinaryReader(file_Cipher))
+                    {
+                        while (reader.BaseStream.Position != reader.BaseStream.Length)
+                        {
+                            buffer = reader.ReadBytes(bufferLength);
+                            var buffer_write = new byte[buffer.Length];
+                            int i = 0;
+                            foreach (var bytetxt in buffer)
+                            {
+                                uint biginteger;
+                                BigInteger valor = new BigInteger(bytetxt);
+                                biginteger = (uint)Metodo(valor, key, n);
+                                var toWrite = Convert.ToByte(biginteger);
+                                buffer_write[i] = toWrite;
+                                i++;
+                            }
+                            Writer.Write(buffer_write);
+                        }
+                        reader.ReadBytes(bufferLength);
+                    }
+                }
+            }
+        }
+
+        private BigInteger Math_RSA(byte txt, int key, int n)
+        {
+            return (BigInteger)(Math.Pow(txt, key) % n);
+        }
+
+        public void CifrarDescifrar_Old(FileStream ArchivoImportado, string Llave, string newName)
+        {
+            ArchivoImportado.Close();
+            string[] claves = Llave.Split(',');
             int e = int.Parse(claves[0]);
             BigInteger mod = new BigInteger(int.Parse(claves[1]));
             using (FileStream archivo = new FileStream(ArchivoImportado.Name, FileMode.OpenOrCreate, FileAccess.ReadWrite))
@@ -25,11 +66,13 @@ namespace Lab7_EDII.RSA
                         while (reader.BaseStream.Position != reader.BaseStream.Length)
                         {
                             buffer = reader.ReadBytes(bufferLength);
+                            var buffer_write = new byte[buffer.Length];
                             foreach (var item in buffer)
                             {
+                                uint biginteger;
                                 BigInteger valor = new BigInteger(item);
-                                var toWrite = Convert.ToByte(Metodo(valor, e, mod));
-                                file.WriteByte(toWrite);
+                                biginteger = (uint)Metodo(valor, e, mod);
+                                var toWrite = Convert.ToByte(biginteger);
                             }
                         }
                         reader.ReadBytes(bufferLength);
@@ -64,8 +107,8 @@ namespace Lab7_EDII.RSA
                 inverso = phi + inverso;
             }
             string llavePrivada = e.ToString() + "," + N.ToString();
-            CreateFile(llavePrivada, "private.key");
             string llavePublica = inverso.ToString() + "," + N.ToString();
+            CreateFile(llavePrivada, "private.key");
             CreateFile(llavePublica, "public.key");
             CompressFile();
         }
