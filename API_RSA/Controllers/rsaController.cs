@@ -20,25 +20,29 @@ namespace API_RSA.Controllers
         [HttpGet, Route("{p}/{q}")]
         public ActionResult Get_Key(int p, int q)
         {
-            if (p <= 0 || q <= 0)
+            if (p != q)
             {
-                return StatusCode(500, $"El valor de p:{p} o el valor de q:{q} deben de ser mayores a 0.");
-            }
-            Numbers numbers = new Numbers();
-            if (numbers.Is_Prime(p) && numbers.Is_Prime(q))
-            {
-                if (numbers.Is_Big(p) && numbers.Is_Big(q))
+                if (p <= 0 || q <= 0)
                 {
-                    FileHandling fileHandling = new FileHandling();
-                    fileHandling.Create_Keys(p, q);
-                    return Ok($"Llaves generadas para {p},{q}");
+                    return StatusCode(500, $"El valor de p:{p} o el valor de q:{q} deben de ser mayores a 0.");
                 }
-                return StatusCode(500, $"El valor de p:{p} y el valor de q:{q} deben de ser menores a 1,000.");
+                Numbers numbers = new Numbers();
+                if (numbers.Is_Prime(p) && numbers.Is_Prime(q))
+                {
+                    if (numbers.Is_Big(p) && numbers.Is_Big(q))
+                    {
+                        FileHandling fileHandling = new FileHandling();
+                        fileHandling.Create_Keys(p, q);
+                        return Ok($"Llaves generadas para {p},{q}");
+                    }
+                    return StatusCode(500, $"El valor de p:{p} y el valor de q:{q} deben de ser menores a 1,000.");
+                }
+                else
+                {
+                    return StatusCode(500, $"El valor de p:{p} o el valor de q:{q} deben de ser números primos.");
+                } 
             }
-            else
-            {
-                return StatusCode(500, $"El valor de p:{p} o el valor de q:{q} deben de ser números primos.");
-            }
+            return StatusCode(500, $"Los valores de p:{p} y q:{q} no pueden ser los mismos");
         }
 
         /// <summary>
