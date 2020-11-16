@@ -9,7 +9,7 @@
             Cifrado Asimétrico RSA
             </summary>
         </member>
-        <member name="M:API_RSA.Controllers.rsaController.Get_Key(System.Int32,System.Int32)">
+        <member name="M:API_RSA.Controllers.rsaController.Get_KeyAsync(System.Int32,System.Int32)">
              <summary>
              Generación de llave pública y privada
              </summary>

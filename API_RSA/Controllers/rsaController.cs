@@ -18,7 +18,7 @@ namespace API_RSA.Controllers
         ///<response code="500">Números son valores erroneos</response>
         /// <returns></returns>
         [HttpGet, Route("{p}/{q}")]
-        public ActionResult Get_Key(int p, int q)
+        public async System.Threading.Tasks.Task<ActionResult> Get_KeyAsync(int p, int q)
         {
             if (p != q)
             {
@@ -33,7 +33,7 @@ namespace API_RSA.Controllers
                     {
                         FileHandling fileHandling = new FileHandling();
                         fileHandling.Create_Keys(p, q);
-                        return Ok($"Llaves generadas para {p},{q}");//aplication/zip
+                        return File(await System.IO.File.ReadAllBytesAsync($"RSA.zip"), "application/octet-stream", "RSA.zip");
                     }
                     return StatusCode(500, $"El valor de p:{p} y el valor de q:{q} deben de ser menores a 1,000.");
                 }
