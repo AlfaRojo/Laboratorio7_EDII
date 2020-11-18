@@ -139,7 +139,7 @@ namespace Lab7_EDII.RSA
 
         private long module_Text(byte text, int key, int mod)
         {
-            long module = (long)Math.Pow(text, key) % mod;
+            long module = (long)BigInteger.ModPow(text, key, mod);
             return module;
         }
 
