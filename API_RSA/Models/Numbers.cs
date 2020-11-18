@@ -26,7 +26,7 @@
         /// <returns></returns>
         public bool Is_Big(int num)
         {
-            return num < 60 ? true : false;
+            return num < 40 ? true : false;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Lab7_EDII.RSA;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 
 namespace API_RSA.Models
@@ -64,6 +65,25 @@ namespace API_RSA.Models
             }
             return new_Path;
         }
+        private void CompressFile()
+        {
+            string startPath = @"RSA";
+            string zipPath = @"RSA.zip";
+            if (File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+            ZipFile.CreateFromDirectory(startPath, zipPath);
+        }
+        private string get_Key(IFormFile keyFile)
+        {
+            string key = string.Empty;
+            using (var key_file = new StreamReader(keyFile.OpenReadStream()))
+            {
+                key = key_file.ReadLine();
+            }
+            return key;
+        }
 
         /// <summary>
         /// Genera las llaves y son guardadas en archivos separados y compresos
@@ -75,6 +95,7 @@ namespace API_RSA.Models
             Create_Files_RSA();
             CipherDecipher cipherDecipher = new CipherDecipher();
             cipherDecipher.CreacionLlaves(p, q);
+            CompressFile();
             Delete_Files_RSA();
         }
 
@@ -95,14 +116,6 @@ namespace API_RSA.Models
             }
             Delete_Files_Upload();
         }
-        private string get_Key(IFormFile keyFile)
-        {
-            string key = string.Empty;
-            using (var key_file = new StreamReader(keyFile.OpenReadStream()))
-            {
-                key = key_file.ReadLine();
-            }
-            return key;
-        }
+
     }
 }

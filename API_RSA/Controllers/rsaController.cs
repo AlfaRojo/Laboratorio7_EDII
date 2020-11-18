@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using API_RSA.Models;
+using System.Threading.Tasks;
 
 namespace API_RSA.Controllers
 {
@@ -18,7 +19,7 @@ namespace API_RSA.Controllers
         ///<response code="500">Números son valores erroneos</response>
         /// <returns></returns>
         [HttpGet, Route("{p}/{q}")]
-        public async System.Threading.Tasks.Task<ActionResult> Get_KeyAsync(int p, int q)
+        public async Task<ActionResult> Get_KeyAsync(int p, int q)
         {
             if (p != q)
             {

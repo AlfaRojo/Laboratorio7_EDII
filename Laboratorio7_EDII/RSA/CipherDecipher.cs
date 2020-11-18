@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -9,7 +9,7 @@ namespace Lab7_EDII.RSA
 {
     public class CipherDecipher
     {
-        List<string> list_Bin = new List<string>();
+        List<char> list_Bin = new List<char>();
         public void CifrarDescifrar(FileStream ArchivoImportado, string Llave, string newName)
         {
             ArchivoImportado.Close();
@@ -20,83 +20,127 @@ namespace Lab7_EDII.RSA
             {
                 var bufferLength = 80;
                 var buffer = new byte[bufferLength];
-                int longer = 0; //Guardará el numero en binario mas largo
                 using (var Writer = new BinaryWriter(File.OpenWrite(Path.Combine($"RSA", newName + ".txt"))))
                 {
                     using (var reader = new BinaryReader(file_Cipher))
                     {
+                        var max_Length = Convert.ToString(n, 2).Length;
+
                         while (reader.BaseStream.Position != reader.BaseStream.Length)
                         {
                             buffer = reader.ReadBytes(bufferLength);
                             var buffer_write = new byte[buffer.Length];
                             foreach (var bytetxt in buffer)
                             {
-                                var binary = Convert.ToString(bytetxt, 2);
-                                var test = module_Text(bytetxt, key, n);
-                                if (longer < test)
+                                var new_Text = module_Text(bytetxt, key, n);
+                                if (new_Text < 0)
                                 {
-                                    longer = (int)test;
+                                    new_Text += n;
                                 }
-                                else
+                                var bin_Length = Convert.ToString((byte)new_Text, 2);
+                                if (max_Length > bin_Length.Length) 
                                 {
-                                    var maxBit = Convert.ToString(longer, 2);
-                                    binary = Complete_bin(maxBit.Length, binary);
+                                    bin_Length = Complete_bin(max_Length, bin_Length);
                                 }
-                                list_Bin.Add(binary);
+                                uint result = Convert.ToUInt32(bin_Length, 2);
+                                
+                                var text_ASCII = (char)result;
+                                list_Bin.Add(text_ASCII);
                             }
-                            //Escribir la lista en ASCII
                         }
                         reader.ReadBytes(bufferLength);
+                        //var toWrite = Get_ASCII();
+                        foreach (var item in list_Bin)
+                        {
+                            Writer.Write(item);
+                        }
                     }
                 }
             }
         }
+        public void CreacionLlaves(int primo1, int primo2)
+        {
+            int phi = (primo1 - 1) * (primo2 - 1);
+            int n = primo1 * primo2;
+            int e = get_E(phi, n);
+            int d = modInverse(e, phi);
+
+            if (d < 0 )
+            {
+                d += phi;
+            }
+            string llavePrivada = d.ToString() + "," + n.ToString();
+            string llavePublica = e.ToString() + "," + n.ToString();
+            CreateFile(llavePrivada, "private.key");
+            CreateFile(llavePublica, "public.key");
+        }
+        public void CreateFile(string textoResultante, string tipo)
+        {
+            using (FileStream Archivo = File.Create(@"RSA\" + tipo))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes(textoResultante);
+                Archivo.Write(info, 0, info.Length);
+                byte[] data = new byte[] { 0x0 };
+                Archivo.Write(data, 0, data.Length);
+            }
+        }
+
+        private List<string> Get_ASCII()
+        {
+            List<string> vs = new List<string>();
+            var appended = string.Empty;
+            string aux = string.Empty;
+            for (int i = 0; i < list_Bin.Count(); i++)
+            {
+                if (i <= list_Bin.Count())
+                {
+                    string actual = aux + list_Bin.ElementAt(i);
+                    if (actual.Length > 7)
+                    {
+                        appended = actual.Substring(0, 8);
+                        actual = actual.Replace(appended, string.Empty);
+                    }
+                    if (actual != null)
+                    {
+                        aux = actual;
+                    }
+                    var new_text = Encoding.ASCII.GetString(GetBytes(appended));
+                    vs.Add(new_text);
+                    if (aux.Length == 8)
+                    {
+                        var new_byte = Encoding.ASCII.GetString(GetBytes(appended));
+                        vs.Add(new_byte);
+                        aux = string.Empty;
+                    }
+                }
+            }
+            return vs;
+        }
+
+        private static byte[] GetBytes(string bitString)
+        {
+            return Enumerable.Range(0, bitString.Length / 8).
+                Select(pos => Convert.ToByte(
+                    bitString.Substring(pos * 8, 8),
+                    2)
+                ).ToArray();
+        }
 
         private string Complete_bin(int size, string actual)
         {
-            List<string> vs = new List<string>();
-            while (size != actual.Length)
+            while (size > actual.Length)
             {
                 StringBuilder stringBuilder = new StringBuilder("0");
                 stringBuilder.Append(actual);
                 actual = stringBuilder.ToString();
             }
-            foreach (var item in list_Bin)
-            {
-                var new_value = item;
-                while (size != new_value.Length)
-                {
-                    StringBuilder stringBuilder = new StringBuilder("0");
-                    stringBuilder.Append(new_value);
-                    new_value = stringBuilder.ToString();
-                }
-                vs.Add(new_value);
-            }
-            list_Bin = vs;
             return actual;
         }
 
-        private BigInteger module_Text(byte text, int key, int mod)
+        private long module_Text(byte text, int key, int mod)
         {
-            BigInteger module = (BigInteger)Math.Pow(text,key) % mod;
+            long module = (long)Math.Pow(text, key) % mod;
             return module;
-        }
-
-        public void CreacionLlaves(int primo1, int primo2)
-        {
-            int phi = (primo1 - 1) * (primo2 - 1);
-            int n = primo1 * primo2;
-            int e = get_E(phi);
-            int d = modInverse(e, phi);
-            if (d < 0)
-            {
-                d += phi;
-            }
-            string llavePrivada = e.ToString() + "," + n.ToString();
-            string llavePublica = d.ToString() + "," + n.ToString();
-            CreateFile(llavePrivada, "private.key");
-            CreateFile(llavePublica, "public.key");
-            CompressFile();
         }
 
         private int modInverse(int a, int n)
@@ -116,15 +160,15 @@ namespace Lab7_EDII.RSA
             return v;
         }
 
-        private int get_E(int phi)
+        private int get_E(int phi, int n)
         {
             var rand = new Random();
-            int value = rand.Next(10,100);
+            int value = rand.Next(2, n);
             for (int i = value; i < 10000; i++)
             {
                 if (isPrime(i))
                 {
-                    if (EsPrimoRelativo(i, phi))
+                    if (EsPrimoRelativo(i, phi - 2))
                     {
                         return i;
                     }
@@ -157,26 +201,5 @@ namespace Lab7_EDII.RSA
             return numero1 == 1 || numero1 == -1;
         }
 
-        public void CreateFile(string textoResultante, string tipo)
-        {
-            using (FileStream Archivo = File.Create(@"RSA\" + tipo))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(textoResultante);
-                Archivo.Write(info, 0, info.Length);
-                byte[] data = new byte[] { 0x0 };
-                Archivo.Write(data, 0, data.Length);
-            }
-        }
-
-        public void CompressFile()
-        {
-            string startPath = @"RSA";
-            string zipPath = @"RSA.zip";
-            if (File.Exists(zipPath))
-            {
-                File.Delete(zipPath);
-            }
-            ZipFile.CreateFromDirectory(startPath, zipPath);
-        }
     }
 }
