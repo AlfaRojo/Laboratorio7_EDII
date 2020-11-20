@@ -19,7 +19,7 @@
             <response code="500">Números son valores erroneos</response>
              <returns></returns>
         </member>
-        <member name="M:API_RSA.Controllers.rsaController.Post_Key(System.String,API_RSA.Models.Required)">
+        <member name="M:API_RSA.Controllers.rsaController.Post_KeyAsync(System.String,API_RSA.Models.Required)">
             <summary>
             Recibe 
             </summary>

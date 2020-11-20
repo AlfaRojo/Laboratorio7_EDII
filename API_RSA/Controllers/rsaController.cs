@@ -50,11 +50,18 @@ namespace API_RSA.Controllers
         /// <param name="files"></param>
         /// <returns></returns>
         [HttpPost, Route("{nombre}")]
-        public ActionResult Post_Key(string nombre, Required files)
+        public async Task<ActionResult> Post_KeyAsync(string nombre, Required files)
         {
-            FileHandling fileHandling = new FileHandling();
-            fileHandling.Cihper_with_Key(files, nombre);
-            return Ok();
+            try
+            {
+                FileHandling fileHandling = new FileHandling();
+                fileHandling.Cihper_with_Key(files, nombre);
+                return File(await System.IO.File.ReadAllBytesAsync($"RSA\\{nombre}.txt"), "application/octet-stream", $"{nombre}.txt");
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(500, "Se ha producido un problema en el cifrado");
+            }
         }
     }
 }
