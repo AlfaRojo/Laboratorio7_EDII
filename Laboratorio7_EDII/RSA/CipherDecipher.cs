@@ -117,7 +117,7 @@ namespace Lab7_EDII.RSA
         {
             var rand = new Random();
             int value = rand.Next(2, n);
-            for (int i = value; i < 10000; i++)
+            for (int i = value; i < n + 100; i++)
             {
                 if (isPrime(i))
                 {
