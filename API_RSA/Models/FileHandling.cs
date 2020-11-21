@@ -2,12 +2,49 @@
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace API_RSA.Models
 {
     public class FileHandling
     {
+        /// <summary>
+        /// Genera las llaves y son guardadas en archivos separados y compresos
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="q"></param>
+        public void Create_Keys(int p, int q)
+        {
+            Create_Files_RSA();
+            CipherDecipher cipherDecipher = new CipherDecipher();
+            var keys = cipherDecipher.Create_Kyes(p, q);
+            var privateKey = keys[0];
+            var publicKey = keys[1];
+            Create_File(privateKey, "private.key");
+            Create_File(publicKey, "public.key");
+            CompressFile();
+            Delete_Files_RSA();
+        }
+
+        /// <summary>
+        /// Obtiene la llave guardada en el archivo
+        /// </summary>
+        /// <param name="files"></param>
+        /// <param name="fileName"></param>
+        public void Cihper_with_Key(Required files, string fileName)
+        {
+            Create_Files_RSA();
+            Create_Files_Upload();
+            CipherDecipher cipherDecipher = new CipherDecipher();
+            var new_path = Import_FileAsync(files.CipherFile);
+            using (var cipherFile = new FileStream(new_path.Result, FileMode.Open))
+            {
+                cipherDecipher.CifrarDescifrar(cipherFile, get_Key(files.KeyFile), fileName);
+            }
+            Delete_Files_Upload();
+        }
+
         private void Create_Files_Upload()
         {
             if (!Directory.Exists($"Upload"))
@@ -84,37 +121,15 @@ namespace API_RSA.Models
             }
             return key;
         }
-
-        /// <summary>
-        /// Genera las llaves y son guardadas en archivos separados y compresos
-        /// </summary>
-        /// <param name="p"></param>
-        /// <param name="q"></param>
-        public void Create_Keys(int p, int q)
+        private void Create_File(string textoResultante, string tipo)
         {
-            Create_Files_RSA();
-            CipherDecipher cipherDecipher = new CipherDecipher();
-            cipherDecipher.CreacionLlaves(p, q);
-            CompressFile();
-            Delete_Files_RSA();
-        }
-
-        /// <summary>
-        /// Obtiene la llave guardada en el archivo
-        /// </summary>
-        /// <param name="files"></param>
-        /// <param name="fileName"></param>
-        public void Cihper_with_Key(Required files, string fileName)
-        {
-            Create_Files_RSA();
-            Create_Files_Upload();
-            CipherDecipher cipherDecipher = new CipherDecipher();
-            var new_path = Import_FileAsync(files.cipherFile);
-            using (var cipherFile = new FileStream(new_path.Result, FileMode.Open))
+            using (FileStream Archivo = File.Create(@"RSA\" + tipo))
             {
-                cipherDecipher.CifrarDescifrar(cipherFile, get_Key(files.keyFile), fileName);
+                byte[] info = new UTF8Encoding(true).GetBytes(textoResultante);
+                Archivo.Write(info, 0, info.Length);
+                byte[] data = new byte[] { 0x0 };
+                Archivo.Write(data, 0, data.Length);
             }
-            Delete_Files_Upload();
         }
 
     }

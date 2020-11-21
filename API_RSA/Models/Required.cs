@@ -6,9 +6,9 @@ namespace API_RSA.Models
     public class Required
     {
         [Required]
-        public IFormFile keyFile { get; set; }
+        public IFormFile KeyFile { get; set; }
         [Required]
-        public IFormFile cipherFile { get; set; }
+        public IFormFile CipherFile { get; set; }
 
     }
 }

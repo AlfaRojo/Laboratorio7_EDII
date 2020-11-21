@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -11,7 +9,6 @@ namespace Lab7_EDII.RSA
     {
         public void CifrarDescifrar(FileStream ArchivoImportado, string Llave, string newName)
         {
-            List<char> vs = new List<char>();
             ArchivoImportado.Close();
             string[] claves = Llave.Split(',');
             int key = int.Parse(claves[0]);
@@ -20,12 +17,10 @@ namespace Lab7_EDII.RSA
             {
                 var bufferLength = 80;
                 var buffer = new byte[bufferLength];
-                var saved = Path.Combine($"RSA", newName + ".txt");
-                using (var Writer = new StreamWriter(saved, true))
+                using (var Writer = new StreamWriter(Path.Combine($"RSA", newName + ".txt"), true))
                 {
                     using (var reader = new BinaryReader(file_Cipher))
                     {
-                        var max_Length = Convert.ToString(n, 2).Length;
                         var left_over = string.Empty;
                         while (reader.BaseStream.Position != reader.BaseStream.Length)
                         {
@@ -39,36 +34,20 @@ namespace Lab7_EDII.RSA
                                     new_Text += n;
                                 }
                                 var bin_Length = left_over + ToNBase(new_Text, 2);
-                                //if (max_Length > bin_Length.Length)
-                                //{
-                                //    bin_Length = Complete_bin(max_Length, bin_Length);
-                                //}
                                 string texter = string.Empty;
                                 if (bin_Length.Length > 8)
                                 {
                                     texter = bin_Length.Substring(0, 8);
                                     left_over = bin_Length.Replace(texter, string.Empty);
-                                    int result = Convert.ToInt32(texter, 2);
-                                    var text_ASCII = (char)result;
+                                    var text_ASCII = (char)Convert.ToInt32(texter, 2);
                                     Writer.Write(text_ASCII);
-                                    vs.Add(text_ASCII);
                                 }
-                                if (left_over.Length == 8)
-                                {
-                                    texter = left_over.Substring(0, 8);
-                                    int result = Convert.ToInt32(texter, 2);
-                                    var text_ASCII = (char)result;
-                                    Writer.Write(text_ASCII);
-                                    vs.Add(text_ASCII);
-                                }
-                                if (left_over.Length > 8)
+                                if (left_over.Length >= 8)
                                 {
                                     texter = left_over.Substring(0, 8);
                                     left_over = left_over.Replace(texter, string.Empty);
-                                    int result = Convert.ToInt32(texter, 2);
-                                    var text_ASCII = (char)result;
+                                    var text_ASCII = (char)Convert.ToInt32(texter, 2);
                                     Writer.Write(text_ASCII);
-                                    vs.Add(text_ASCII);
                                 }
                             }
                             if (left_over != null)
@@ -76,121 +55,96 @@ namespace Lab7_EDII.RSA
                                 var text_ASCII = ToNBase(Convert.ToInt32(left_over, 2), 2);
                                 var new_text = (char)Convert.ToInt32(text_ASCII, 2);
                                 Writer.Write(new_text);
-                                vs.Add(new_text);
                             }
                         }
                     }
                 }
+            }
         }
-    }
 
-    private static string ToNBase(BigInteger a, int n)
-    {
-        StringBuilder sb = new StringBuilder();
-        while (a > 0)
+        private static string ToNBase(BigInteger a, int n)
         {
-            sb.Insert(0, a % n);
-            a /= n;
-        }
-        return sb.ToString();
-    }
-
-    public void CreacionLlaves(int primo1, int primo2)
-    {
-        int phi = (primo1 - 1) * (primo2 - 1);
-        int n = primo1 * primo2;
-        int e = get_E(phi, n);
-        int d = modInverse(e, phi);
-
-        if (d < 0)
-        {
-            d += phi;
-        }
-        string llavePrivada = d.ToString() + "," + n.ToString();
-        string llavePublica = e.ToString() + "," + n.ToString();
-        CreateFile(llavePrivada, "private.key");
-        CreateFile(llavePublica, "public.key");
-    }
-
-    public void CreateFile(string textoResultante, string tipo)
-    {
-        using (FileStream Archivo = File.Create(@"RSA\" + tipo))
-        {
-            byte[] info = new UTF8Encoding(true).GetBytes(textoResultante);
-            Archivo.Write(info, 0, info.Length);
-            byte[] data = new byte[] { 0x0 };
-            Archivo.Write(data, 0, data.Length);
-        }
-    }
-
-    private string Complete_bin(int size, string actual)
-    {
-        actual = actual.PadLeft(size, '0');
-        return actual;
-    }
-
-    private BigInteger module_Text(byte text, int key, int mod)
-    {
-        return BigInteger.ModPow(text, key, mod);
-    }
-
-    private int modInverse(int a, int n)
-    {
-        int i = n, v = 0, d = 1;
-        while (a > 0)
-        {
-            int t = i / a, x = a;
-            a = i % x;
-            i = x;
-            x = d;
-            d = v - t * x;
-            v = x;
-        }
-        v %= n;
-        if (v < 0) v = (v + n) % n;
-        return v;
-    }
-
-    private int get_E(int phi, int n)
-    {
-        var rand = new Random();
-        int value = rand.Next(2, n);
-        for (int i = value; i < 10000; i++)
-        {
-            if (isPrime(i))
+            StringBuilder sb = new StringBuilder();
+            while (a > 0)
             {
-                if (EsPrimoRelativo(i, phi - 2))
+                sb.Insert(0, a % n);
+                a /= n;
+            }
+            return sb.ToString();
+        }
+        public string[] Create_Kyes(int primo1, int primo2)
+        {
+            int phi = (primo1 - 1) * (primo2 - 1);
+            int n = primo1 * primo2;
+            int e = get_E(phi, n);
+            int d = modInverse(e, phi);
+            if (d < 0)
+            {
+                d += phi;
+            }
+            string llavePrivada = d.ToString() + "," + n.ToString();
+            string llavePublica = e.ToString() + "," + n.ToString();
+            string[] keys = { llavePrivada, llavePublica };
+            return keys;
+        }
+        private BigInteger module_Text(byte text, int key, int mod)
+        {
+            return BigInteger.ModPow(text, key, mod);
+        }
+        private int modInverse(int a, int n)
+        {
+            int i = n, v = 0, d = 1;
+            while (a > 0)
+            {
+                int t = i / a, x = a;
+                a = i % x;
+                i = x;
+                x = d;
+                d = v - t * x;
+                v = x;
+            }
+            v %= n;
+            if (v < 0) v = (v + n) % n;
+            return v;
+        }
+        private int get_E(int phi, int n)
+        {
+            var rand = new Random();
+            int value = rand.Next(2, n);
+            for (int i = value; i < 10000; i++)
+            {
+                if (isPrime(i))
                 {
-                    return i;
+                    if (EsPrimoRelativo(i, phi - 2))
+                    {
+                        return i;
+                    }
                 }
             }
+            return 0;
         }
-        return 0;
-    }
-
-    private static bool isPrime(int number)
-    {
-        for (int i = 2; i < number; i++)
+        private static bool isPrime(int number)
         {
-            if (number % i == 0)
+            for (int i = 2; i < number; i++)
             {
-                return false;
+                if (number % i == 0)
+                {
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
-    }
-
-    private static bool EsPrimoRelativo(int numero1, int numero2)
-    {
-        int resto;
-        while (numero2 != 0)
+        private static bool EsPrimoRelativo(int numero1, int numero2)
         {
-            resto = numero1 % numero2;
-            numero1 = numero2;
-            numero2 = resto;
+            int resto;
+            while (numero2 != 0)
+            {
+                resto = numero1 % numero2;
+                numero1 = numero2;
+                numero2 = resto;
+            }
+            return numero1 == 1 || numero1 == -1;
         }
-        return numero1 == 1 || numero1 == -1;
-    }
 
-}
+    }
 }
