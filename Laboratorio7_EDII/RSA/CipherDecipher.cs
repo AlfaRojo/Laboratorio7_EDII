@@ -42,6 +42,12 @@ namespace Lab7_EDII.RSA
                                     var text_ASCII = (char)Convert.ToInt32(texter, 2);
                                     Writer.Write(text_ASCII);
                                 }
+                                else
+                                {
+                                    var text_ASCII = ToNBase(Convert.ToInt32(bin_Length, 2), 2);
+                                    var new_text = (char)Convert.ToInt32(text_ASCII, 2);
+                                    Writer.Write(new_text);
+                                }
                                 if (left_over.Length >= 8)
                                 {
                                     texter = left_over.Substring(0, 8);
@@ -50,7 +56,7 @@ namespace Lab7_EDII.RSA
                                     Writer.Write(text_ASCII);
                                 }
                             }
-                            if (left_over != null)
+                            if (!left_over.Equals(""))
                             {
                                 var text_ASCII = ToNBase(Convert.ToInt32(left_over, 2), 2);
                                 var new_text = (char)Convert.ToInt32(text_ASCII, 2);
