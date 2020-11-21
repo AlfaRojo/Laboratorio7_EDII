@@ -18,11 +18,9 @@ namespace API_RSA.Models
         {
             Create_Files_RSA();
             CipherDecipher cipherDecipher = new CipherDecipher();
-            var keys = cipherDecipher.Create_Kyes(p, q);
-            var privateKey = keys[0];
-            var publicKey = keys[1];
-            Create_File(privateKey, "private.key");
-            Create_File(publicKey, "public.key");
+            var keys = cipherDecipher.Create_Keys(p, q);
+            Create_File(keys[0], "private.key");
+            Create_File(keys[1], "public.key");
             CompressFile();
             Delete_Files_RSA();
         }

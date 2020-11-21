@@ -1,13 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
-using System.Text;
 
 namespace Lab7_EDII.RSA
 {
     public class CipherDecipher
     {
-        List<char> list_Bin = new List<char>();
         public void CifrarDescifrar(FileStream ArchivoImportado, string Llave, string newName)
         {
             ArchivoImportado.Close();
@@ -22,123 +20,40 @@ namespace Lab7_EDII.RSA
                 {
                     using (var reader = new BinaryReader(file_Cipher))
                     {
-                        var max_Length = Convert.ToString(n, 2).Length;
-
                         while (reader.BaseStream.Position != reader.BaseStream.Length)
                         {
                             buffer = reader.ReadBytes(bufferLength);
-                            var buffer_write = new byte[buffer.Length];
                             foreach (var bytetxt in buffer)
                             {
-                                var new_Text = module_Text(bytetxt, key, n);
-                                if (new_Text < 0)
-                                {
-                                    new_Text += n;
-                                }
-                                var bin_Length = Convert.ToString((byte)new_Text, 2);
-                                if (max_Length > bin_Length.Length) 
-                                {
-                                    bin_Length = Complete_bin(max_Length, bin_Length);
-                                }
-                                uint result = Convert.ToUInt32(bin_Length, 2);
-                                
-                                var text_ASCII = (char)result;
-                                list_Bin.Add(text_ASCII);
+                                var biginteger = module_Text(bytetxt, key, n);
+                                var toWrite = (char)biginteger;
+                                Writer.Write(toWrite);
                             }
-                        }
-                        reader.ReadBytes(bufferLength);
-                        //var toWrite = Get_ASCII();
-                        foreach (var item in list_Bin)
-                        {
-                            Writer.Write(item);
                         }
                     }
                 }
             }
         }
-        public void CreacionLlaves(int primo1, int primo2)
+
+        public string[] Create_Keys(int primo1, int primo2)
         {
             int phi = (primo1 - 1) * (primo2 - 1);
             int n = primo1 * primo2;
             int e = get_E(phi, n);
             int d = modInverse(e, phi);
-
-            if (d < 0 )
+            if (d < 0)
             {
                 d += phi;
             }
-            string llavePrivada = d.ToString() + "," + n.ToString();
-            string llavePublica = e.ToString() + "," + n.ToString();
-            CreateFile(llavePrivada, "private.key");
-            CreateFile(llavePublica, "public.key");
-        }
-        public void CreateFile(string textoResultante, string tipo)
-        {
-            using (FileStream Archivo = File.Create(@"RSA\" + tipo))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes(textoResultante);
-                Archivo.Write(info, 0, info.Length);
-                byte[] data = new byte[] { 0x0 };
-                Archivo.Write(data, 0, data.Length);
-            }
+            string llavePrivada = e.ToString() + "," + n.ToString();
+            string llavePublica = d.ToString() + "," + n.ToString();
+            string[] keys = { llavePrivada, llavePublica };
+            return keys;
         }
 
-        private List<string> Get_ASCII()
+        private BigInteger module_Text(byte text, int key, int mod)
         {
-            List<string> vs = new List<string>();
-            var appended = string.Empty;
-            string aux = string.Empty;
-            for (int i = 0; i < list_Bin.Count(); i++)
-            {
-                if (i <= list_Bin.Count())
-                {
-                    string actual = aux + list_Bin.ElementAt(i);
-                    if (actual.Length > 7)
-                    {
-                        appended = actual.Substring(0, 8);
-                        actual = actual.Replace(appended, string.Empty);
-                    }
-                    if (actual != null)
-                    {
-                        aux = actual;
-                    }
-                    var new_text = Encoding.ASCII.GetString(GetBytes(appended));
-                    vs.Add(new_text);
-                    if (aux.Length == 8)
-                    {
-                        var new_byte = Encoding.ASCII.GetString(GetBytes(appended));
-                        vs.Add(new_byte);
-                        aux = string.Empty;
-                    }
-                }
-            }
-            return vs;
-        }
-
-        private static byte[] GetBytes(string bitString)
-        {
-            return Enumerable.Range(0, bitString.Length / 8).
-                Select(pos => Convert.ToByte(
-                    bitString.Substring(pos * 8, 8),
-                    2)
-                ).ToArray();
-        }
-
-        private string Complete_bin(int size, string actual)
-        {
-            while (size > actual.Length)
-            {
-                StringBuilder stringBuilder = new StringBuilder("0");
-                stringBuilder.Append(actual);
-                actual = stringBuilder.ToString();
-            }
-            return actual;
-        }
-
-        private long module_Text(byte text, int key, int mod)
-        {
-            long module = (long)BigInteger.ModPow(text, key, mod);
-            return module;
+            return BigInteger.ModPow(text, key, mod);
         }
 
         private int modInverse(int a, int n)
@@ -157,15 +72,16 @@ namespace Lab7_EDII.RSA
             if (v < 0) v = (v + n) % n;
             return v;
         }
+
         private int get_E(int phi, int n)
         {
             var rand = new Random();
             int value = rand.Next(2, n);
-            for (int i = value; i < 10000; i++)
+            for (int i = value; i < n + 100; i++)
             {
                 if (isPrime(i))
                 {
-                    if (EsPrimoRelativo(i, phi - 2))
+                    if (EsPrimoRelativo(i, phi))
                     {
                         return i;
                     }
@@ -173,6 +89,7 @@ namespace Lab7_EDII.RSA
             }
             return 0;
         }
+
         private static bool isPrime(int number)
         {
             for (int i = 2; i < number; i++)
@@ -184,6 +101,7 @@ namespace Lab7_EDII.RSA
             }
             return true;
         }
+
         private static bool EsPrimoRelativo(int numero1, int numero2)
         {
             int resto;
@@ -196,5 +114,18 @@ namespace Lab7_EDII.RSA
             return numero1 == 1 || numero1 == -1;
         }
 
+        private bool VerificacionCoPrimos(int phi, int e)
+        {
+            int sumando = phi % e;
+            if (sumando != 0)
+            {
+                return VerificacionCoPrimos(e, sumando);
+            }
+            if (e == 1)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }
