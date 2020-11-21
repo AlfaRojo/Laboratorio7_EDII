@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Text;
 
 namespace Lab7_EDII.RSA
 {
     public class CipherDecipher
     {
+        List<char> list_Bin = new List<char>();
         public void CifrarDescifrar(FileStream ArchivoImportado, string Llave, string newName)
         {
             ArchivoImportado.Close();
@@ -20,40 +23,70 @@ namespace Lab7_EDII.RSA
                 {
                     using (var reader = new BinaryReader(file_Cipher))
                     {
+                        var max_Length = Convert.ToString(n, 2).Length;
+
                         while (reader.BaseStream.Position != reader.BaseStream.Length)
                         {
                             buffer = reader.ReadBytes(bufferLength);
+                            var buffer_write = new byte[buffer.Length];
                             foreach (var bytetxt in buffer)
                             {
-                                var biginteger = module_Text(bytetxt, key, n);
-                                var toWrite = (char)biginteger;
-                                Writer.Write(toWrite);
+                                var new_Text = module_Text(bytetxt, key, n);
+                                if (new_Text < 0)
+                                {
+                                    new_Text += n;
+                                }
+                                var bin_Length = Convert.ToString((byte)new_Text, 2);
+                                if (max_Length > bin_Length.Length)
+                                {
+                                    bin_Length = Complete_bin(max_Length, bin_Length);
+                                }
+                                uint result = Convert.ToUInt32(bin_Length, 2);
+
+                                var text_ASCII = (char)result;
+                                list_Bin.Add(text_ASCII);
                             }
+                        }
+                        reader.ReadBytes(bufferLength);
+                        foreach (var item in list_Bin)
+                        {
+                            Writer.Write(item);
                         }
                     }
                 }
             }
         }
-
         public string[] Create_Keys(int primo1, int primo2)
         {
             int phi = (primo1 - 1) * (primo2 - 1);
             int n = primo1 * primo2;
             int e = get_E(phi, n);
             int d = modInverse(e, phi);
+
             if (d < 0)
             {
                 d += phi;
             }
-            string llavePrivada = e.ToString() + "," + n.ToString();
-            string llavePublica = d.ToString() + "," + n.ToString();
-            string[] keys = { llavePrivada, llavePublica };
-            return keys;
+            string llavePrivada = d.ToString() + "," + n.ToString();
+            string llavePublica = e.ToString() + "," + n.ToString();
+            return new string[] { llavePrivada, llavePublica };
         }
 
-        private BigInteger module_Text(byte text, int key, int mod)
+        private string Complete_bin(int size, string actual)
         {
-            return BigInteger.ModPow(text, key, mod);
+            while (size > actual.Length)
+            {
+                StringBuilder stringBuilder = new StringBuilder("0");
+                stringBuilder.Append(actual);
+                actual = stringBuilder.ToString();
+            }
+            return actual;
+        }
+
+        private long module_Text(byte text, int key, int mod)
+        {
+            long module = (long)BigInteger.ModPow(text, key, mod);
+            return module;
         }
 
         private int modInverse(int a, int n)
@@ -81,7 +114,7 @@ namespace Lab7_EDII.RSA
             {
                 if (isPrime(i))
                 {
-                    if (EsPrimoRelativo(i, phi))
+                    if (EsPrimoRelativo(i, phi - 2))
                     {
                         return i;
                     }
@@ -114,18 +147,5 @@ namespace Lab7_EDII.RSA
             return numero1 == 1 || numero1 == -1;
         }
 
-        private bool VerificacionCoPrimos(int phi, int e)
-        {
-            int sumando = phi % e;
-            if (sumando != 0)
-            {
-                return VerificacionCoPrimos(e, sumando);
-            }
-            if (e == 1)
-            {
-                return true;
-            }
-            return false;
-        }
     }
 }
